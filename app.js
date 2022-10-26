@@ -104,47 +104,49 @@ const count = (countries) =>
  * But, the rule is clear : "The count command should add the number of children after the filter was applied".
  */
 
-try {
-  const commands = args.slice(2).map((arg) => arg.split("="));
+if (require.main === module) {
+  try {
+    const commands = args.slice(2).map((arg) => arg.split("="));
 
-  const filterCommands = ["--filter", "filter"];
-  const countCommands = ["--count", "count"];
-  const allowedCommands = new Set(filterCommands.concat(countCommands));
+    const filterCommands = ["--filter", "filter"];
+    const countCommands = ["--count", "count"];
+    const allowedCommands = new Set(filterCommands.concat(countCommands));
 
-  // Let's suppose we only allow existing commands
-  if (
-    commands.length < 1 ||
-    commands.length > 2 ||
-    !commands.every((command) => allowedCommands.has(command.at(0)))
-  ) {
-    console.log("Wrong arguments.");
-    return; // fail fast
+    // Let's suppose we only allow existing commands
+    if (
+      commands.length < 1 ||
+      commands.length > 2 ||
+      !commands.every((command) => allowedCommands.has(command.at(0)))
+    ) {
+      console.log("Wrong arguments.");
+      throw new Error(); // fail fast
+    }
+
+    const isFilter = (command) => filterCommands.includes(command);
+    const isCount = (command) => countCommands.includes(command);
+
+    const [cmd1, cmd2] = commands;
+    const c1 = cmd1.at(0);
+    const c2 = cmd2?.at(0);
+
+    if ((isFilter(c1) || isFilter(c2)) && (isCount(c1) || isCount(c2))) {
+      const idFilter = commands.findIndex((array) => isFilter(array.at(0)));
+      const [, pattern] = commands[idFilter];
+      const result = count(filter(data, pattern));
+      console.log(
+        isEmpty(result) ? "Nothing found" : JSON.stringify(result, null, 2)
+      );
+    } else if (isFilter(c1)) {
+      const result = filter(data, commands[0][1]);
+      console.log(
+        isEmpty(result) ? "Nothing found" : JSON.stringify(result, null, 2)
+      );
+    } else if (isCount(c1)) {
+      console.log(JSON.stringify(count(data), null, 2));
+    }
+  } catch (err) {
+    throw err;
   }
-
-  const isFilter = (command) => filterCommands.includes(command);
-  const isCount = (command) => countCommands.includes(command);
-
-  const [cmd1, cmd2] = commands;
-  const c1 = cmd1.at(0);
-  const c2 = cmd2?.at(0);
-
-  if ((isFilter(c1) || isFilter(c2)) && (isCount(c1) || isCount(c2))) {
-    const idFilter = commands.findIndex((array) => isFilter(array.at(0)));
-    const [, pattern] = commands[idFilter];
-    const result = count(filter(data, pattern));
-    console.log(
-      isEmpty(result) ? "Nothing found" : JSON.stringify(result, null, 2)
-    );
-  } else if (isFilter(c1)) {
-    const result = filter(data, commands[0][1]);
-    console.log(
-      isEmpty(result) ? "Nothing found" : JSON.stringify(result, null, 2)
-    );
-  } else if (isCount(c1)) {
-    console.log(JSON.stringify(count(data), null, 2));
-  }
-} catch (err) {
-  throw err;
 }
 
 module.exports = {
