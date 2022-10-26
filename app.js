@@ -133,14 +133,10 @@ if (require.main === module) {
       const idFilter = commands.findIndex((array) => isFilter(array.at(0)));
       const [, pattern] = commands[idFilter];
       const result = count(filter(data, pattern));
-      console.log(
-        isEmpty(result) ? "Nothing found" : JSON.stringify(result, null, 2)
-      );
+      console.log(isEmpty(result) ? "Nothing found" : JSON.stringify(result, null, 2));
     } else if (isFilter(c1)) {
       const result = filter(data, commands[0][1]);
-      console.log(
-        isEmpty(result) ? "Nothing found" : JSON.stringify(result, null, 2)
-      );
+      console.log(isEmpty(result) ? "Nothing found" : JSON.stringify(result, null, 2));
     } else if (isCount(c1)) {
       console.log(JSON.stringify(count(data), null, 2));
     }
